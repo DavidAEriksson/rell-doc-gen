@@ -10,12 +10,15 @@
 	1. ```
 		a_folder/
 			function.rell
-            module.rell
-            operation.rell
-            query.rell
-        main.rell
-        chromia.yml
-        etc..
+    			module.rell
+            		operation.rell
+            		query.rell
+        	main.rell
+        	chromia.yml
+        	etc..
 	   ```
 2. Clone or copy `doc-gen.py` into the `root/` of your project.
 3. Run `python3 doc-gen.py`
+4. A new file `MODULE_DEFINITIONS.md` will be created in the root of your project. If you want to change the name of this file you can update the variable `output_file_path`.
+
+###### ❗ Note that this file is deleted and "re-made" every time the script runs.
