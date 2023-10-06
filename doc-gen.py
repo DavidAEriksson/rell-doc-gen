@@ -94,24 +94,24 @@ def parse_documentation(source_code):
 def generate_markdown_documentation(documentation, directory_name):
     markdown = ""
 
-    for token, details in documentation.items():
-        category = 'Unknown'
-        if 'args' in details:
-            if details['type'] == 'operation':
-                category = 'Operations'
-            elif details['type'] == 'query':
-                category = 'Queries'
-            elif details['type'] == 'function':
-                category = 'Functions'
+    categories = {'Queries': 'query', 'Operations': 'operation', 'Functions': 'function'}
 
-            markdown += f"## {category}\n\n"
-            markdown += f"### `{token}`\n\n"
-            if 'description' in details:
-                markdown += f"{details['description']}\n\n"
-            if 'args' in details:
-                markdown += "#### Arguments\n\n"
-                for arg in details['args']:
-                    markdown += f"`{arg['type']}: {arg['name']}` - {arg['description']}\n\n"
+    for category, keyword in categories.items():
+        category_docs = [f"## {category}\n\n"]
+
+        for token, details in documentation.items():
+            if 'args' in details and details['type'] == keyword:
+                category_docs.append(f"### `{token}`\n\n")
+                if 'description' in details:
+                    category_docs.append(f"{details['description']}\n\n")
+
+                if details['args']:
+                    category_docs.append("#### Arguments\n\n")
+                    for arg in details['args']:
+                        category_docs.append(f"`{arg['type']}: {arg['name']}` - {arg['description']}\n\n")
+
+        if len(category_docs) > 1:  # Check if there are entries for the category
+            markdown += ''.join(category_docs)
 
     return markdown
 
@@ -130,22 +130,23 @@ def process_directory(directory_path, output_file):
         directory_name = os.path.basename(root)
         if not directory_name:
             continue  # Skip the iteration if the directory name is empty
-        if processed_directories or directory_name not in processed_directories:
+
+        if directory_name not in processed_directories:
             # Print the directory name only once
             with open(output_file, 'a') as output:
                 output.write(f"# {directory_name.capitalize()}\n\n")
             processed_directories.add(directory_name)
 
-        for file in files:
-            if file.endswith(('function.rell', 'operation.rell', 'query.rell')):
-                file_path = os.path.join(root, file)
-                with open(file_path, 'r') as file_content:
-                    source_code = file_content.read()
-                    parsed_documentation = parse_documentation(source_code)
-                    markdown_documentation = generate_markdown_documentation(
-                        parsed_documentation, directory_name)
-                    with open(output_file, 'a') as output:
-                        output.write(markdown_documentation)
+            for file in files:
+                if file.endswith(('function.rell', 'operation.rell', 'query.rell')):
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r') as file_content:
+                        source_code = file_content.read()
+                        parsed_documentation = parse_documentation(source_code)
+                        markdown_documentation = generate_markdown_documentation(
+                            parsed_documentation, directory_name)
+                        with open(output_file, 'a') as output:
+                            output.write(markdown_documentation)
 
 
 output_file_path = "MODULE_DEFINITIONS.md"
