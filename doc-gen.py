@@ -94,21 +94,23 @@ def parse_documentation(source_code):
 def generate_markdown_documentation(documentation, directory_name):
     markdown = ""
 
-    categories = {'Queries': 'query', 'Operations': 'operation', 'Functions': 'function'}
+    categories = {'Queries': 'query', 'Operations': 'operation', 'Functions (internal only)': 'function'}
 
     for category, keyword in categories.items():
-        category_docs = [f"## {category}\n\n"]
+        category_docs = [f"\n\n## {category}\n\n"]
 
         for token, details in documentation.items():
             if 'args' in details and details['type'] == keyword:
-                category_docs.append(f"### `{token}`\n\n")
+                category_docs.append(f"\n\n### Name: `{token}`\n\n")
                 if 'description' in details:
-                    category_docs.append(f"{details['description']}\n\n")
+                    category_docs.append("Description:\n\n")
+                    category_docs.append(f"> {details['description']}\n\n")
 
                 if details['args']:
-                    category_docs.append("#### Arguments\n\n")
+                    category_docs.append("### Arguments\n\n")
+                    category_docs.append("|Name|Type|Description|\n|----|----|-----|\n")
                     for arg in details['args']:
-                        category_docs.append(f"`{arg['type']}: {arg['name']}` - {arg['description']}\n\n")
+                        category_docs.append(f"|`{arg['type']}`|`{arg['name']}`|{arg['description']}|\n")
 
         if len(category_docs) > 1:  # Check if there are entries for the category
             markdown += ''.join(category_docs)
@@ -134,7 +136,7 @@ def process_directory(directory_path, output_file):
         if directory_name not in processed_directories:
             # Print the directory name only once
             with open(output_file, 'a') as output:
-                output.write(f"# {directory_name.capitalize()}\n\n")
+                output.write(f"\n# {directory_name.capitalize()}\n\n")
             processed_directories.add(directory_name)
 
             for file in files:
