@@ -57,7 +57,7 @@ def parse_function(line, current_token, documentation):
 
 
 def parse_arguments(line, current_token, documentation):
-    arg_match = re.search(r'@arg\s+\{([^}]*)\}: (\w+)\s*-\s*([^@]*)', line)
+    arg_match = re.search(r'@arg\s+\{([^}]*)\}: (\S+)\s*-\s*([^@]*)', line)
     if arg_match and current_token:
         arg_type, arg_name, arg_description = arg_match.groups()
         documentation[current_token]['args'].append({
