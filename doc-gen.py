@@ -119,7 +119,9 @@ def generate_markdown_documentation(documentation, directory_name):
 
 
 def process_directory(directory_path, output_file):
-    processed_directories = set()  # Keep track of processed directories
+    # Keep track of processed directories
+    processed_directories = set()
+
     for root, dirs, files in os.walk(directory_path):
         # remove lib and test directories
         if 'lib' in dirs:
@@ -131,24 +133,25 @@ def process_directory(directory_path, output_file):
 
         directory_name = os.path.basename(root)
         if not directory_name:
-            continue  # Skip the iteration if the directory name is empty
+            continue
 
         if directory_name not in processed_directories:
-            # Print the directory name only once
             with open(output_file, 'a') as output:
                 output.write(f"\n# {directory_name.capitalize()}\n\n")
             processed_directories.add(directory_name)
 
-            for file in files:
-                if file.endswith(('function.rell', 'operation.rell', 'query.rell')):
-                    file_path = os.path.join(root, file)
-                    with open(file_path, 'r') as file_content:
-                        source_code = file_content.read()
-                        parsed_documentation = parse_documentation(source_code)
-                        markdown_documentation = generate_markdown_documentation(
-                            parsed_documentation, directory_name)
-                        with open(output_file, 'a') as output:
-                            output.write(markdown_documentation)
+            # Sort the files alphabetically to avoid randomness in the documentation
+            file_list = [file for file in files if file.endswith(('function.rell', 'operation.rell', 'query.rell'))]
+            file_list.sort()
+
+            for file in file_list:
+                file_path = os.path.join(root, file)
+                with open(file_path, 'r') as file_content:
+                    source_code = file_content.read()
+                    parsed_documentation = parse_documentation(source_code)
+                    markdown_documentation = generate_markdown_documentation(parsed_documentation, directory_name)
+                    with open(output_file, 'a') as output:
+                        output.write(markdown_documentation)
 
 
 output_file_path = "MODULE_DEFINITIONS.md"
